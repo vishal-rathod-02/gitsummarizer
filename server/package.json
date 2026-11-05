@@ -1,16 +1,22 @@
 {
   "name": "server",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "description": "GitSummarizer Express Backend API",
+  "main": "src/app.js",
   "scripts": {
-   "dev": "nodemon src/app.js",
-  "start": "node src/app.js"
+    "dev": "nodemon src/app.js",
+    "start": "node src/app.js",
+    "test": "node --test tests/backend.test.js"
   },
-  "keywords": [],
+  "keywords": [
+    "gitsummarizer",
+    "github",
+    "express",
+    "ai-summary"
+  ],
   "author": "",
   "license": "ISC",
-  "type": "commonjs",
+  "type": "module",
   "dependencies": {
     "cors": "^2.8.6",
     "dotenv": "^18.0.9",
