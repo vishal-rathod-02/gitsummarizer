@@ -35,7 +35,8 @@ export function optionalAuth(req, _res, next) {
     req.user = {
       id: payload.sub,
       email: payload.email,
-      name: payload.name || null
+      name: payload.name || null,
+      isGuest: Boolean(payload.isGuest)
     };
     return next();
   } catch (err) {
@@ -61,7 +62,8 @@ export function requireAuth(req, _res, next) {
     req.user = {
       id: payload.sub,
       email: payload.email,
-      name: payload.name || null
+      name: payload.name || null,
+      isGuest: Boolean(payload.isGuest)
     };
     return next();
   } catch (err) {

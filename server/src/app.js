@@ -24,7 +24,6 @@ const allowedOrigins = (process.env.CLIENT_URL || env.CLIENT_URL)
 app.use(
   cors({
     origin(origin, callback) {
-      // Allow server-to-server/curl requests with no Origin header or matching origins
       if (!origin || allowedOrigins.includes(origin) || allowedOrigins.includes("*")) {
         return callback(null, true);
       }
@@ -57,6 +56,8 @@ if (isMainModule) {
   const PORT = process.env.PORT || env.PORT || 5000;
   app.listen(PORT, () => {
     console.log(`GitSummarizer API listening on port ${PORT}`);
+    console.log(`http://localhost:${PORT}`);
+
   });
 }
 

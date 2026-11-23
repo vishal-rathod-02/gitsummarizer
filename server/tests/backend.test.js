@@ -458,5 +458,68 @@ describe("GitSummarizer Backend Test Suite", () => {
       });
       assert.equal(bobHistory.data.data.length, 0);
     });
+
+    it("creates isolated demo sessions and guarantees demo users never see each other's or registered users' history", async () => {
+      // 1. Create Demo Session 1
+      const demo1Res = await apiRequest("POST", "/api/auth/demo");
+      assert.equal(demo1Res.status, 200);
+      assert.ok(demo1Res.data.data.token);
+      assert.equal(demo1Res.data.data.user.isGuest, true);
+      assert.ok(demo1Res.data.data.user.id.startsWith("demo-"));
+
+      const tokenDemo1 = demo1Res.data.data.token;
+      const userDemo1 = demo1Res.data.data.user;
+
+      // GET /api/auth/me returns guest info
+      const meRes = await apiRequest("GET", "/api/auth/me", {
+        headers: { Authorization: `Bearer ${tokenDemo1}` }
+      });
+      assert.equal(meRes.status, 200);
+      assert.equal(meRes.data.data.user.id, userDemo1.id);
+      assert.equal(meRes.data.data.user.isGuest, true);
+
+      // 2. Demo 1 generates a summary
+      mockGitHubFetch();
+      const demo1Summary = await apiRequest("POST", "/api/summaries", {
+        headers: { Authorization: `Bearer ${tokenDemo1}` },
+        body: { repositoryUrl: "https://github.com/vishal-rathod-02/gitsummarizer" }
+      });
+      assert.equal(demo1Summary.status, 201);
+      const demo1SummaryId = demo1Summary.data.data.id;
+
+      // Demo 1 can see their own summary in history
+      const demo1History = await apiRequest("GET", "/api/summaries", {
+        headers: { Authorization: `Bearer ${tokenDemo1}` }
+      });
+      assert.equal(demo1History.status, 200);
+      assert.equal(demo1History.data.data.length, 1);
+      assert.equal(demo1History.data.data[0].id, demo1SummaryId);
+
+      // 3. Create a second, independent Demo Session 2
+      const demo2Res = await apiRequest("POST", "/api/auth/demo");
+      assert.equal(demo2Res.status, 200);
+      const tokenDemo2 = demo2Res.data.data.token;
+      const userDemo2 = demo2Res.data.data.user;
+      assert.notEqual(userDemo1.id, userDemo2.id);
+
+      // Demo 2's history MUST be completely empty (isolated from Demo 1)
+      const demo2History = await apiRequest("GET", "/api/summaries", {
+        headers: { Authorization: `Bearer ${tokenDemo2}` }
+      });
+      assert.equal(demo2History.status, 200);
+      assert.equal(demo2History.data.data.length, 0);
+
+      // Demo 2 CANNOT access Demo 1's summary details
+      const demo2Detail = await apiRequest("GET", `/api/summaries/${demo1SummaryId}`, {
+        headers: { Authorization: `Bearer ${tokenDemo2}` }
+      });
+      assert.equal(demo2Detail.status, 404);
+
+      // Demo 2 CANNOT delete Demo 1's summary
+      const demo2Delete = await apiRequest("DELETE", `/api/summaries/${demo1SummaryId}`, {
+        headers: { Authorization: `Bearer ${tokenDemo2}` }
+      });
+      assert.equal(demo2Delete.status, 404);
+    });
   });
 });

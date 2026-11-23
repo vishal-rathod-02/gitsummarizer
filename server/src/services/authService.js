@@ -68,6 +68,7 @@ export function signAccessToken(user) {
       sub: user.id,
       email: user.email,
       name: user.name || null,
+      isGuest: Boolean(user.isGuest),
       iat: nowSeconds,
       exp: expSeconds
     })
@@ -174,7 +175,41 @@ export function loginUser({ email, password }) {
   };
 }
 
-export function getAuthenticatedUser(userId) {
+export function createDemoSession() {
+  const demoId = "demo-" + crypto.randomUUID();
+  const demoEmail = `guest-${demoId.slice(5, 13)}@gitsummarizer.local`;
+  const created = createUser({
+    id: demoId,
+    name: "Guest Explorer",
+    email: demoEmail,
+    passwordHash: "locked$demo$session"
+  });
+
+  const demoUser = {
+    id: created.id,
+    name: created.name,
+    email: created.email,
+    isGuest: true
+  };
+  const token = signAccessToken(demoUser);
+
+  return {
+    user: demoUser,
+    token,
+    expiresIn: env.JWT_EXPIRES_IN_SECONDS
+  };
+}
+
+export function getAuthenticatedUser(userId, tokenPayload = {}) {
+  if (typeof userId === "string" && userId.startsWith("demo-")) {
+    return {
+      id: userId,
+      name: tokenPayload.name || "Guest Explorer",
+      email: tokenPayload.email || `guest-${userId.slice(5, 13)}@gitsummarizer.local`,
+      isGuest: true
+    };
+  }
+
   const user = findById(userId);
   if (!user) {
     throw new AppError(401, "UNAUTHORIZED", "User account no longer exists.");
