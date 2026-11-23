@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "nodemon src/app.js",
     "start": "node src/app.js",
-     "build": "node -e \"console.log('Server build complete')\"",
+    "build": "node -e \"console.log('Server build complete')\"",
     "test": "node --test tests/backend.test.js"
   },
   "keywords": [

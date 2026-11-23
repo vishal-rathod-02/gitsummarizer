@@ -4,6 +4,7 @@ import { createRateLimiter } from "../middleware/security.js";
 import {
   register,
   login,
+  demoSession,
   logout,
   me
 } from "../controllers/authController.js";
@@ -17,6 +18,7 @@ const authRateLimiter = createRateLimiter({
 
 router.post("/register", authRateLimiter, register);
 router.post("/login", authRateLimiter, login);
+router.post("/demo", demoSession);
 router.post("/logout", logout);
 router.get("/me", requireAuth, me);
 

@@ -35,7 +35,8 @@ export function UserProfileMenu() {
   };
 
   const initial = (user?.name || user?.email || "U").slice(0, 1).toUpperCase();
-  const displayName = user?.name || (user?.email ? user.email.split("@")[0] : "Developer");
+  const displayName =
+    user?.name || (user?.email ? user.email.split("@")[0] : "Developer");
   const isGuest = user?.isGuest || false;
 
   return (
@@ -60,7 +61,7 @@ export function UserProfileMenu() {
           <span className="absolute -bottom-0.5 -right-0.5 h-2 w-2 rounded-full bg-emerald-500 ring-1.5 ring-white" />
         </div>
 
-        <span className="hidden xs:inline sm:inline max-w-[110px] truncate text-slate-800 font-semibold group-hover:text-emerald-800 transition">
+        <span className="hidden xs:inline sm:inline max-w-27.5 truncate text-slate-800 font-semibold group-hover:text-emerald-800 transition">
           {displayName}
         </span>
 
@@ -68,7 +69,9 @@ export function UserProfileMenu() {
           name="chevronDown"
           size={13}
           className={`text-slate-400 transition-transform duration-200 ${
-            isOpen ? "rotate-180 text-emerald-700" : "group-hover:text-slate-600"
+            isOpen
+              ? "rotate-180 text-emerald-700"
+              : "group-hover:text-slate-600"
           }`}
         />
       </button>
@@ -83,7 +86,9 @@ export function UserProfileMenu() {
             </span>
             <div className="min-w-0 flex-1">
               <div className="flex items-center gap-2">
-                <p className="text-xs font-bold text-slate-900 truncate">{displayName}</p>
+                <p className="text-xs font-bold text-slate-900 truncate">
+                  {displayName}
+                </p>
                 <span
                   className={`rounded-full px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wider ${
                     isGuest
@@ -94,7 +99,9 @@ export function UserProfileMenu() {
                   {isGuest ? "Guest" : "Developer"}
                 </span>
               </div>
-              <p className="text-[11px] text-slate-500 truncate mt-0.5">{user?.email}</p>
+              <p className="text-[11px] text-slate-500 truncate mt-0.5">
+                {user?.email}
+              </p>
             </div>
           </div>
 
@@ -104,7 +111,9 @@ export function UserProfileMenu() {
               <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
               <span>Workspace active</span>
             </span>
-            <span className="font-mono text-[10px] text-slate-400">v1.0 (ESM)</span>
+            <span className="font-mono text-[10px] text-slate-400">
+              v1.0 (ESM)
+            </span>
           </div>
 
           <div className="h-px bg-slate-100 my-1.5" />

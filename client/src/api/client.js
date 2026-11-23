@@ -22,11 +22,10 @@ export async function apiRequest(endpointPath, options = {}) {
     ...(options.headers || {}),
   };
 
-  // Inject Bearer token if user is signed in with a real JWT (exclude guest-token)
+  // Inject Bearer token if user or demo session is signed in
   const token = localStorage.getItem("gitsummarizer.token");
   if (
     token &&
-    token !== "guest-token" &&
     !headers.Authorization &&
     !headers.authorization
   ) {

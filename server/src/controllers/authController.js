@@ -5,6 +5,7 @@ import {
 import {
   registerUser,
   loginUser,
+  createDemoSession,
   getAuthenticatedUser
 } from "../services/authService.js";
 
@@ -36,6 +37,18 @@ export function login(req, res, next) {
   }
 }
 
+export function demoSession(_req, res, next) {
+  try {
+    const result = createDemoSession();
+    return res.status(200).json({
+      success: true,
+      data: result
+    });
+  } catch (err) {
+    return next(err);
+  }
+}
+
 export function logout(_req, res) {
   return res.status(200).json({
     success: true,
@@ -45,7 +58,7 @@ export function logout(_req, res) {
 
 export function me(req, res, next) {
   try {
-    const user = getAuthenticatedUser(req.user.id);
+    const user = getAuthenticatedUser(req.user.id, req.user);
     return res.status(200).json({
       success: true,
       data: { user }

@@ -16,7 +16,7 @@ export function RepoUrlForm({ onSubmit, loading = false, initialUrl = "" }) {
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [validationError, setValidationError] = useState("");
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setValidationError("");
 
@@ -26,11 +26,22 @@ export function RepoUrlForm({ onSubmit, loading = false, initialUrl = "" }) {
       return;
     }
 
-    onSubmit({
-      repositoryUrl: validation.normalizedUrl,
-      commitRef: commitRef.trim() || validation.commitRef || null,
-      commitLimit: Number(commitLimit) || 20,
-    });
+    try {
+      await onSubmit({
+        repositoryUrl: validation.normalizedUrl,
+        commitRef: commitRef.trim() || validation.commitRef || null,
+        commitLimit: Number(commitLimit) || 20,
+      });
+
+      // Clear all form input data upon successful generation
+      setUrl("");
+      setCommitRef("");
+      setCommitLimit(20);
+      setShowAdvanced(false);
+      setValidationError("");
+    } catch {
+      // Keep inputs if generation failed so user can review and retry
+    }
   };
 
   const handleSampleClick = (sampleUrl) => {

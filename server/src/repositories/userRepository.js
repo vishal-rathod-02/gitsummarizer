@@ -38,19 +38,19 @@ export function findById(id) {
   return normalizeUserRow(row);
 }
 
-export function createUser({ name, email, passwordHash }) {
+export function createUser({ id, name, email, passwordHash }) {
   const db = getDb();
-  const id = crypto.randomUUID();
+  const userId = id || crypto.randomUUID();
   const now = new Date().toISOString();
   const normalizedEmail = String(email).trim().toLowerCase();
 
   db.prepare(
     `INSERT INTO users (id, name, email, password_hash, created_at, updated_at)
      VALUES (?, ?, ?, ?, ?, ?)`
-  ).run(id, name || null, normalizedEmail, passwordHash, now, now);
+  ).run(userId, name || null, normalizedEmail, passwordHash, now, now);
 
   return {
-    id,
+    id: userId,
     name: name || null,
     email: normalizedEmail,
     createdAt: now,
