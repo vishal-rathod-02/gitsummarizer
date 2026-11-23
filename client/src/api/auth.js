@@ -20,6 +20,13 @@ export async function loginUser({ email, password }) {
   return payload.data;
 }
 
+export async function loginDemoUser() {
+  const payload = await apiRequest("/auth/demo", {
+    method: "POST",
+  });
+  return payload.data;
+}
+
 export async function logoutUser() {
   try {
     await apiRequest("/auth/logout", { method: "POST" });

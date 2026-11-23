@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useState } from "react";
-import { getMe, loginUser, logoutUser, registerUser } from "../api/auth";
+import { getMe, loginDemoUser, loginUser, logoutUser, registerUser } from "../api/auth";
 
 const AuthContext = createContext(null);
 
@@ -23,8 +23,8 @@ export function AuthProvider({ children }) {
         return;
       }
 
-      // Guest session does not need remote token validation
-      if (token === "guest-token") {
+      // Offline guest session does not need remote token validation
+      if (token.startsWith("demo-token-")) {
         setLoading(false);
         return;
       }
@@ -71,23 +71,46 @@ export function AuthProvider({ children }) {
     return result;
   };
 
-  const continueAsGuest = () => {
+  const continueAsGuest = async () => {
+    try {
+      const res = await loginDemoUser();
+      if (res?.token && res?.user) {
+        setToken(res.token);
+        setUser(res.user);
+        localStorage.setItem("gitsummarizer.token", res.token);
+        localStorage.setItem("gitsummarizer.user", JSON.stringify(res.user));
+        return res.user;
+      }
+    } catch {
+      // Offline fallback: generate a unique isolated local guest session
+    }
+
+    const demoId =
+      "demo-" +
+      (typeof crypto !== "undefined" && crypto.randomUUID
+        ? crypto.randomUUID()
+        : Math.random().toString(36).slice(2));
     const guestUser = {
-      id: "guest-user",
+      id: demoId,
       name: "Guest Explorer",
-      email: "guest@gitsummarizer.local",
+      email: `guest-${demoId.slice(5, 13)}@gitsummarizer.local`,
       isGuest: true,
     };
-    setToken("guest-token");
+    const guestToken = `demo-token-${demoId}`;
+    setToken(guestToken);
     setUser(guestUser);
-    localStorage.setItem("gitsummarizer.token", "guest-token");
+    localStorage.setItem("gitsummarizer.token", guestToken);
     localStorage.setItem("gitsummarizer.user", JSON.stringify(guestUser));
     return guestUser;
   };
 
   const logout = async () => {
-    if (token && token !== "guest-token") {
-      await logoutUser();
+    if (token && !token.startsWith("demo-token-")) {
+      try {
+        await logoutUser();
+      } catch {
+        // Ignore network error on logout
+      }
     }
     setToken(null);
     setUser(null);
